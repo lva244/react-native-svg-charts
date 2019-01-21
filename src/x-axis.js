@@ -80,13 +80,6 @@ class XAxis extends PureComponent {
         const x = this._getX(domain)
         const ticks = numberOfTicks ? x.ticks(numberOfTicks) : values
 
-        const extraProps = {
-            x,
-            ticks,
-            height,
-            formatLabel,
-        }
-
         return (
             <View style={ style }>
                 <View
@@ -107,17 +100,22 @@ class XAxis extends PureComponent {
                             width,
                         }}>
                             <G>
-                                {React.Children.map(children, child => {
-                                    return React.cloneElement(child, extraProps)
-                                })}
                                 {
                                     // don't render labels if width isn't measured yet,
                                     // causes rendering issues
                                     width > 0 &&
                                     ticks.map((value, index) => {
                                         const { svg: valueSvg = {} } = data[index] || {}
+                                        const extraProps = {
+                                            x,
+                                            ticks,
+                                            height,
+                                            formatLabel,
+                                            index
+                                        }
 
                                         return (
+                                            !children ?
                                             <SVGText
                                                 textAnchor={ 'middle' }
                                                 originX={ x(value) }
@@ -128,7 +126,10 @@ class XAxis extends PureComponent {
                                                 x={ x(value) }
                                             >
                                                 {formatLabel(value, index)}
-                                            </SVGText>
+                                            </SVGText> :
+                                            React.Children.map(children, child => {
+                                                return React.cloneElement(child, extraProps)
+                                            })
                                         )
                                     })
                                 }
